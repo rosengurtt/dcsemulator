@@ -1,0 +1,13 @@
+﻿<DropPassengerBagsRequest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <PassengerId>1925759848</PassengerId>
+  <FlightId>0</FlightId>
+  <BagsToDrop>
+    <Bag>
+      <Type>StandardBag</Type>
+      <WeightInKilos>22</WeightInKilos>
+      <Tag>937349</Tag>
+      <LimitedReleaseCode>None</LimitedReleaseCode>
+    </Bag>
+  </BagsToDrop>
+  <OverrideWeightErrors>false</OverrideWeightErrors>
+</DropPassengerBagsRequest>

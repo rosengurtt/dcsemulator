@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	 <!-- 
+	<munit:config name="new-test-suite.xml" />
+	<munit:test name="DropPassengerBagsRequest-test" description="Test" doc:id="d73320b8-5805-4e88-af0a-6ae2b040194a" >
+		<munit:execution >
+
+			<parse-template doc:name="Read file" doc:id="54479b1b-b266-4b00-92b3-6716709ea830" location="src/test/resources/input/DropPassengerBagsRequest.xml" />
+			
+			
+			<flow-ref doc:name="Flow-ref to dcsemulatorFlow" doc:id="aca873d8-871d-4f2a-ad88-507f4f718796" name="dcsemulatorFlow"/>
+						<ee:transform doc:name="Save output to var" doc:id="97db9200-63c5-4006-9d59-c28cfde9f696" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="OutputGenerated" ><![CDATA[%dw 2.0
+output application/java
+-
+ payload.^raw as String]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="ba206627-ffff-47fc-973a-1707dc5d31f0" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+-
+readUrl("classpath://output/DropPassengerBagsRequest.xml", "application/xml")]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</munit:execution>
+	</munit:test>
+
+-->
+</mule>

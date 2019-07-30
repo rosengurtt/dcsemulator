@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+
+	
+	<flow name="MainFlow" doc:id="dbf48fc0-d4e7-47f7-93da-0f9b7bc41cbb" >
+		<ee:transform doc:name="Save input in 'inputData' variable" doc:id="2a575410-6fbe-4be0-a33e-bc0cf0fc5b91" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputData" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	payload: payload.^raw as String,
+	queryPath : message.attributes.requestPath,
+	queryString: message.attributes.queryString,
+	httpMethod : message.attributes.method
+}]]></ee:set-variable>
+			</ee:variables>
+		
+</ee:transform>
+		<java:invoke-static doc:name="Check input type" doc:id="45324f46-fd2f-4046-96bb-c4adb1294eb0" class="dcsemulator.InputProcessing"
+		 method="getRequestType(HashMap)" target="requestInfo">
+			<java:args ><![CDATA[#[{
+	inputData: vars.inputData
+}]]]></java:args>
+		</java:invoke-static>
+		<choice doc:name="Is SOAP or REST?" doc:id="d0b158b8-70f0-4ebe-b86f-eec756879423" >
+			<when expression="#[vars.requestInfo.httpMethod == 'REST']">
+				<flow-ref doc:name="processREST" doc:id="d85f0bd8-399a-4709-b2d7-19d73734debe" name="processREST"/>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="processSOAP" doc:id="24268386-19cc-4aaf-829c-52ca3a30a13d" name="processSOAP"/>
+			</otherwise>
+		</choice>
+	<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a599b59b-8c30-46ae-b3b7-895525972422" >
+				<set-payload value="#['An unhandled error occurred: ']" />
+			</on-error-continue>
+		</error-handler>
+</flow>
+	<flow name="processSOAP" doc:id="5372de83-57de-4bd8-9d86-b3fb6f695819" >
+			<java:invoke-static doc:name="Get main tag" doc:id="57cc7d81-88ca-4bb6-a861-f86c9fe92c85" method="extractMainTag(HashMap)" class="dcsemulator.InputProcessing" target="mainTag">
+			<java:args ><![CDATA[#[{inputData: vars.inputData}]]]></java:args>
+		</java:invoke-static>
+		<db:select doc:name="Get config info for main tag" doc:id="19b9ffe4-aac0-4ae4-8a77-ee78b1fbc9bf" config-ref="mssql-jdbc">
+			<db:sql >SELECT * 
+FROM DCSemulatorConfig 
+WHERE mainTag = :mainTag
+ORDER BY sortOrder</db:sql>
+			<db:input-parameters ><![CDATA[#[{'mainTag' : vars.mainTag}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Save configuration in 'requestConfig' variable" doc:id="d6cf7159-8b72-46f9-a6f7-41dd90fbc0a1" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="requestConfig" ><![CDATA[%dw 2.0
+output application/java
+---
+payload map (d, i) ->{
+	mainTag: d.mainTag,
+	airlineXpath: d.airlineXpath,
+	airportXpath: d.airportXpath,
+	PNRXpath: d.PNRXpath,
+	uniqueFragmentPattern: d.uniqueFragmentPattern,
+	requestTypesXpath: d.requestTypesXpath,
+	requestTypesOperation: d.requestTypesOperation,
+	requestTypeValueToMatch: d.requestTypeValueToMatch,
+	requestType: d.requestType,
+	addResponseMainTag: d.addResponseMainTag,
+	replaceResponseMainTag: d.replaceResponseMainTag,
+	addResponseStart: d.addResponseStart,
+	addResponseEnd: d.addResponseEnd
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<java:invoke-static 
+			doc:name="Extract parameters from input" 
+			doc:id="0b090005-2c4a-459c-bfd3-b05d4625eb32" 
+			class="dcsemulator.InputProcessing" 
+			method="extractSearchVariablesFromSOAP(String, HashMap, ArrayList)">
+			<java:args><![CDATA[#[{
+	mainTag: vars.mainTag,
+	inputData: vars.inputData,
+	requestConfig: vars.requestConfig
+}]]]></java:args>
+			</java:invoke-static> 
+		
+
+		<flow-ref doc:name="Get Response from DB" doc:id="80798482-4c33-47ed-abd6-c84dc6c9851e" name="GetResponseFromDatabase" />
+		
+		<java:invoke-static doc:name="Edit output" 
+		doc:id="3d526f85-e799-41b5-94aa-7c214648587d"
+		 method="formatSoapOutput(HashMap)" 
+		 class="dcsemulator.OutputProcessing">
+			<java:args><![CDATA[#[{
+	data: vars.globalData
+}]]]></java:args>
+		</java:invoke-static>
+		<set-payload value="#[payload]" doc:name="Set  content type" doc:id="aef4be31-0aa5-4699-967f-bbde7d602e9a" mimeType="text/xml; charset=utf-8"/>
+	
+	</flow>
+	<flow name="processREST" doc:id="9f7a1bd5-9cec-4508-a8b7-f8b8eb86b61f" >
+		<java:invoke-static doc:name="Extract parameters from input" doc:id="54a6fa63-61b3-4d19-9802-bec607a90a94" class="dcsemulator.InputProcessing" method="extractSearchVariablesFromREST(HashMap, HashMap)">
+			<java:args ><![CDATA[#[{ 
+	inputData: vars.inputData,
+	requestInfo: vars.requestInfo
+}]]]></java:args>
+		</java:invoke-static>
+		<flow-ref doc:name="Get response from DB" doc:id="977de2a0-2f38-440d-90a1-b0ac9c6534fc" name="GetResponseFromDatabase"/>
+		<java:invoke-static doc:name="Edit output" doc:id="2ab2f253-207f-4ab0-a50a-7f02272b1f2a" class="dcsemulator.OutputProcessing" method="formatRestOutput(HashMap)">
+			<java:args><![CDATA[#[{
+	data: vars.globalData
+}]]]></java:args>
+		</java:invoke-static>
+		<set-payload value="#[payload]" doc:name="Set Content Type" doc:id="8e10d505-1e19-4487-ab94-4a222903e208" mimeType="application/json"/>
+		<!--  
+		<set-payload value="#[payload]" doc:name="Set  content type" doc:id="3ac99aed-2ccd-41b5-98f6-17169a59db3f" mimeType="application/json; charset=utf-8" />
+	 -->
+	
+	
+</flow>
+	<flow name="GetResponseFromDatabase" doc:id="f2947de5-21e1-4896-a6db-db0e0fb87c0c" >
+		<choice doc:name="Do we need response from DB?" doc:id="99aff7aa-f6d3-4ff6-bd79-0186a7d95685">
+			<when expression="payload['Response'] == null">
+			
+				<db:stored-procedure config-ref="mssql-jdbc" doc:name="Extract response from DB">
+				    <db:sql>
+				    	{ call GetResponseXmlAndUpdateRuns(:Airline, :Airport, :PNR, :UniqueFragment, :RequestType) }
+				    </db:sql>
+					<db:input-parameters><![CDATA[#[{
+						'Airline' : payload['Airline'],
+						'Airport' : payload['Airport'],
+						'PNR': payload['PNR'],
+						'UniqueFragment': payload['UniqueFragment'],
+						'RequestType': payload['RequestType']
+						}]]]>
+					</db:input-parameters>
+			
+				</db:stored-procedure>
+				<ee:transform doc:name="Save data in 'globalData' variable" doc:id="c9c7f4a3-f792-483d-a1ff-7389eee143e4">
+					<ee:message>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="globalData" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	response: payload[0].DCSResponseXml[0],
+	dcsName: payload[0].DcsName[0],
+	dcsVersion: payload[0].DcsVersion[0],
+	airline: payload[0].Airline[0],
+	inputData: vars.inputData,
+	requestConfig: vars.requestConfig,
+	requestInfo: vars.requestInfo
+	
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Save data in 'globalData' variable" doc:id="77edbff3-f11a-45da-b88a-931544882e58" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="globalData" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	response: payload.Response,
+	dcsName: "",
+	dcsVersion: "",
+	inputData: vars.inputData,
+	requestConfig: null,
+	requestInfo: vars.requestInfo
+	
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+
+</mule>

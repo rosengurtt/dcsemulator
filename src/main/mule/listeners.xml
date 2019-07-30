@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+		<flow name="UnsecureVersionFlow" doc:id="4b85a9fe-171e-4ab0-a52c-af54755a81e7" >
+		<http:listener doc:name="http Listener" doc:id="53e6ea4c-b885-439b-931b-7d4101014cc1" config-ref="HTTP_Listener_config" path="/*"/>
+		<flow-ref doc:name="MainFlow" doc:id="6b5592a8-d387-4952-8bfb-5497d73f5634" name="MainFlow"/>
+	</flow>
+
+	<flow name="SSLversionFlow" doc:id="7f9f0533-12f9-44de-a11b-9632fb16e031" >
+		<http:listener doc:name="https Listener" doc:id="7f71f7fa-2859-47a6-9890-c41ce0e88c5e" config-ref="HTTPS_Listener_config" path="/*"/>
+		<flow-ref doc:name="MainFlow" doc:id="1cb98893-c19d-4425-99ec-11831fa6d592" name="MainFlow"/>
+	</flow>
+	</mule>

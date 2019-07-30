@@ -1,0 +1,9 @@
+﻿<DropPassengerBagsResponse xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Result>Dropped</Result>
+  <DroppedBags>
+    <DroppedBag>
+      <Result>Dropped</Result>
+      <BagTag>937349</BagTag>
+    </DroppedBag>
+  </DroppedBags>
+</DropPassengerBagsResponse>
