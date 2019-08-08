@@ -29,14 +29,14 @@ public class XmlHelpers {
 	public static Node getNode(String xml, String path) throws Exception {
 		xml = StringHelpers.removeEnclosingDoubleQuotes(xml);
 		try {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(new InputSource(new StringReader(xml)));        
-        
-        XPath xPath = XPathFactory.newInstance().newXPath();
-
-        Node node = (Node) xPath.compile(path).evaluate(doc, XPathConstants.NODE);
-        return node;
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	        Document doc = dBuilder.parse(new InputSource(new StringReader(xml)));        
+	        
+	        XPath xPath = XPathFactory.newInstance().newXPath();
+	
+	        Node node = (Node) xPath.compile(path).evaluate(doc, XPathConstants.NODE);
+	        return node;
 		}
 		catch (Exception ex) {
 		

@@ -5,12 +5,15 @@ db:
   password: "sonic"
   
 http:
-  port1: "8091"
-  port2: "8092"
+  port: "8091"
   host: "0.0.0.0"
   basepath: "/"
-  port2: "8092"
 
-password: "password"
+https:
+  port: "8092"
+  host: "0.0.0.0"
+  basepath: "/"
 
-keystore: "faky.keystore"
+certificate:
+  keystore: "faky.keystore"
+  password: "password"

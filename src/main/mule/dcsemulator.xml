@@ -138,7 +138,7 @@ payload map (d, i) ->{
 			
 				<db:stored-procedure config-ref="mssql-jdbc" doc:name="Extract response from DB">
 				    <db:sql>
-				    	{ call GetResponseXmlAndUpdateRuns(:Airline, :Airport, :PNR, :UniqueFragment, :RequestType) }
+				    	{ call GetDCSResponseXmlAndUpdateRuns(:Airline, :Airport, :PNR, :UniqueFragment, :RequestType) }
 				    </db:sql>
 					<db:input-parameters><![CDATA[#[{
 						'Airline' : payload['Airline'],
