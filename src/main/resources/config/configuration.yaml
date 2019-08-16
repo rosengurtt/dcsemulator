@@ -3,11 +3,6 @@ db:
   database.name: "FusionRequest"
   username: "sonic"
   password: "sonic"
-  
-http:
-  port: "8091"
-  host: "0.0.0.0"
-  basepath: "/"
 
 https:
   port: "8092"
